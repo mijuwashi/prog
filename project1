@@ -1,0 +1,90 @@
+/* 
+   Талыков Максим Алексеевич
+   БСБО-05-19
+   Задание №3,4,5(отмечены как prog1-3) 
+*/
+using System;
+using System.IO;
+using System.Text;
+using System.Text.Json;
+using System.Xml;
+using System.IO.Compression;
+
+namespace ConsoleApp1
+{
+  class Program
+  {
+    static void Main(string[] args)
+    {
+      int i = int.Parse(Console.ReadLine());
+      switch (i)
+      {
+        case 1:
+          prog1();
+          Console.ReadKey();
+          File.Delete(@"D:\Documents\test.json");
+          break;
+        case 2:
+          prog2();
+          break;
+        case 3:
+          prog3();
+          break;
+      }
+    }
+
+    static async void prog1()
+    {
+      using(FileStream fs = new FileStream(@"D:\Documents\test.json", FileMode.OpenOrCreate))
+      {
+        test test = new test { answ = "Ya napisal programmu" };
+        await JsonSerializer.SerializeAsync<test>(fs, test);
+        Console.WriteLine("Файл записан");
+      }
+      using (FileStream fs = new FileStream(@"D:\Documents\test.json", FileMode.OpenOrCreate))
+      {
+        test test1 = await JsonSerializer.DeserializeAsync<test>(fs);
+        Console.WriteLine($"{test1.answ}");
+      }
+      
+    }
+    static void prog2()
+    {
+      var xml = new XmlDocument();
+      xml.LoadXml("<item><text>hello</text></item>");
+      XmlElement xmlel = xml.CreateElement("test1");
+      XmlWriter writer = XmlWriter.Create(@"D:\Documents\test.xml");
+      xml.Save(writer);
+      Console.WriteLine(xml.InnerXml);
+      Console.ReadKey();
+      writer.Close();
+      File.Delete(@"D:\Documents\test.xml");
+    }
+    static void prog3()
+    {
+      string startpath = @"D:\Documents\forzip";
+      string zippath = @"D:\Documents\ar.zip";
+      string extractpath = @"D:\Documents\extract";
+      ZipFile.CreateFromDirectory(startpath, zippath);
+      ZipFile.ExtractToDirectory(zippath, extractpath);
+      using (FileStream zipToOpen = new FileStream(@"D:\Documents\ar.zip", FileMode.Open))
+      {
+        using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+        {
+          ZipArchiveEntry readmeEntry = archive.GetEntry("forzip.txt");
+          
+          Console.WriteLine("Объём "  + readmeEntry.CompressedLength);
+          Console.WriteLine("Объём A" + readmeEntry.Length);
+        }    
+   }
+      Console.ReadKey();
+      File.Delete(@"D:\Documents\ar.zip");
+    }
+  }
+  public class test
+  {
+    public String answ {get; set;}
+   }
+}
+
+                    
